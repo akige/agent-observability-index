@@ -620,7 +620,7 @@
  },
  {
   "name": "Dynatrace AI Observability",
-  "url": "https://www.dynatrace.com/platform/artificial-intelligence/ai-observability/",
+  "url": "https://www.dynatrace.com/solutions/ai-observability/",
   "github": null,
   "category": "observability",
   "open_source": false,
@@ -1308,7 +1308,7 @@
  },
  {
   "name": "LLM Guard (Protect AI)",
-  "url": "https://llm-guard.com",
+  "url": "https://github.com/protectai/llm-guard",
   "github": "https://github.com/protectai/llm-guard",
   "category": "guardrails",
   "open_source": true,
@@ -1826,7 +1826,7 @@
  },
  {
   "name": "The LLM Data Company (doteval)",
-  "url": "https://thellmdata.company",
+  "url": "https://www.ycombinator.com/companies/the-llm-data-company",
   "github": null,
   "category": "evals",
   "open_source": false,
