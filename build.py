@@ -2,7 +2,7 @@
 """Static site generator for the Agent Observability Index (by Panshi)."""
 import json, os, re, shutil, html
 
-BASE = "https://akige.github.io/agent-observability-index"  # switch to https://tools.panshi.io when DNS lands
+BASE = "https://tools.panshi.io"  # custom domain live 2026-06-13
 SITE = "Agent Observability Index"
 TAG = "Every AI agent observability, evals, guardrails & cost tool — compared by a neutral third party."
 OUT = "site"
@@ -46,7 +46,7 @@ def page(title, desc, body, path, root=""):
 </div></div></nav>
 {body}
 <footer class="border-t border-slate-800 mt-16"><div class="max-w-5xl mx-auto px-6 py-8 text-sm text-slate-500">
-<p>{SITE} — independent directory, no vendor affiliation. Data manually verified; corrections welcome via <a class="text-emerald-400" href="mailto:sysetc@gmail.com">email</a>.</p>
+<p>{SITE} — independent directory, no vendor affiliation. Data manually verified; corrections welcome via <a class="text-emerald-400" href="mailto:hi@panshi.io">email</a>.</p>
 <p class="mt-2">© 2026 Panshi · <a class="hover:text-slate-300" href="{root}index.html">Home</a> · <a class="hover:text-slate-300" href="{root}advertise.html">Advertise</a></p>
 </div></footer></body></html>"""
     fp = os.path.join(OUT, path)
@@ -203,7 +203,7 @@ document.querySelectorAll('.fbtn').forEach(b=>b.onclick=()=>{{
 <ul class="text-sm text-slate-400 mt-3 space-y-1 list-disc list-inside"><li>Exclusive banner on one category page</li><li>Included in comparison-page footers of that category</li><li>One slot per category</li></ul>
 <p class="mt-4 text-emerald-400 font-mono">$490 / year</p></div></div>
 <p class="mt-8 text-slate-400">Listings themselves are free and editorially controlled — sponsorship never changes facts or rankings.</p>
-<a href="mailto:sysetc@gmail.com?subject=Featured%20listing%20—%20Agent%20Observability%20Index" class="inline-block mt-6 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold px-6 py-3 rounded-lg">Email to get featured</a>
+<a href="mailto:hi@panshi.io?subject=Featured%20listing%20—%20Agent%20Observability%20Index" class="inline-block mt-6 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold px-6 py-3 rounded-lg">Email to get featured</a>
 </main>"""
     paths.append(page(f"Advertise — featured listings & category sponsorship | {SITE}",
         "Reach engineers choosing their LLM observability and evals stack. Featured listings from $99/year.", body, "advertise.html"))
