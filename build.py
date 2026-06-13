@@ -8,7 +8,7 @@ SITE = "Agent Observability Index"
 TAG = "Every AI agent observability, evals, guardrails & cost tool — compared by a neutral third party."
 OUT = "site"
 BUILD_DATE = date.today().isoformat()
-OG_IMAGE = BASE + "/og.svg"
+OG_IMAGE = BASE + "/og.png"
 CF_BEACON = ("<script defer src='https://static.cloudflareinsights.com/beacon.min.js' "
              "data-cf-beacon='{\"token\": \"1cd7fde310f94d97a9660eedd270b154\"}'></script>")
 
@@ -410,7 +410,9 @@ maturity     = min(100, popularity + maintenance + openness)</pre>
 
     # static assets
     open(os.path.join(OUT, "favicon.svg"), "w", encoding="utf-8").write(FAVICON)
-    open(os.path.join(OUT, "og.svg"), "w", encoding="utf-8").write(og_svg(len(tools)))
+    if os.path.isdir("static"):
+        for fn in os.listdir("static"):
+            shutil.copy(os.path.join("static", fn), os.path.join(OUT, fn))
 
     sm = "".join(f"<url><loc>{BASE}/{p}</loc><lastmod>{BUILD_DATE}</lastmod></url>" for p in sorted(set(paths)))
     open(os.path.join(OUT,"sitemap.xml"),"w").write(f'<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{sm}</urlset>')
