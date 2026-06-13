@@ -52,4 +52,40 @@ POSTS = [
     "Publish and keep fresh opinionated, benchmarked best/vs comparison pages with hard statistics, named sources and tables, with the conclusion front-loaded in the first paragraph."),
  ],
 },
+{
+ "slug": "opentelemetry-native-llm-observability-lock-in",
+ "title": "OpenTelemetry-native or not: the lock-in question in LLM observability",
+ "description": "Of the 37 LLM tracing/observability tools we track, 29 are OpenTelemetry-native and 8 are not. Here is why that single fact decides your migration cost — and how to tell the difference.",
+ "date": "2026-06-13",
+ "tags": ["OpenTelemetry", "observability", "lock-in"],
+ "body": """
+<div class="bg-slate-900 border-l-4 border-emerald-500 rounded-r-lg px-5 py-4 mb-8">
+<p class="text-sm font-semibold text-emerald-400">Quick answer</p>
+<p class="text-slate-300 mt-1">If a tool is OpenTelemetry-native — it ingests or emits OTLP and follows the OTel GenAI semantic conventions — switching off it later costs you almost nothing, because your instrumentation stays the same and you just repoint the endpoint. If it relies on a proprietary SDK or trace format, every line of instrumentation is a switching cost. Of the 37 tracing/observability tools we track, <strong class="text-slate-200">29 are OpenTelemetry-native and 8 are not.</strong></p>
+</div>
+
+<p class="text-slate-400">"Does it integrate with X?" is the wrong first question when you pick an LLM observability tool. The question that actually decides your future migration bill is: <strong class="text-slate-200">is it OpenTelemetry-native, or does it lock you into a proprietary SDK?</strong></p>
+
+<h2 class="text-xl font-semibold text-white mt-10">Why it matters</h2>
+<p class="text-slate-400 mt-2">OpenTelemetry (OTel) is the vendor-neutral standard for traces and metrics. When an observability tool speaks OTLP natively, your app emits standard OTel spans and you simply point them at that tool. Outgrow it, or want to send the same data to two backends? You change an endpoint, not your code. When a tool instead ships its own SDK and trace format, your instrumentation <em>is</em> the lock-in: leaving means re-instrumenting everything.</p>
+
+<h2 class="text-xl font-semibold text-white mt-10">How to tell the difference</h2>
+<p class="text-slate-400 mt-2">We checked each tool's own docs and repository, not its marketing. A tool counts as OTel-native only if OTLP / the OpenTelemetry SDK / GenAI semantic conventions are a first-class path — not a secondary "integration." Native examples include Arize Phoenix (built on OTel), SigNoz (OTel-first since day one), Pydantic Logfire (a thin wrapper over OTel), OpenLIT and Traceloop/OpenLLMetry (whose conventions were upstreamed into OTel itself), plus managed platforms that expose a native OTLP endpoint (Langfuse, Datadog, New Relic, Grafana, Dynatrace). Proprietary-first examples include tools whose primary path is their own decorator SDK or a logging proxy rather than OTLP.</p>
+
+<h2 class="text-xl font-semibold text-white mt-10">The nuance</h2>
+<p class="text-slate-400 mt-2">OTel-native is not automatically "better" — a proprietary SDK can offer richer, opinionated capture. And in our own instrumentation-overhead benchmark, the per-span cost of all tested SDKs was negligible against real LLM latency (well under 0.05% of a typical call), though it varied about 7x between the lightest OTel path and a richer proprietary one. So treat OTel-native as a <em>strategic</em> property — it caps your downside and keeps you portable — rather than a performance verdict.</p>
+
+<p class="text-slate-400 mt-4">Every tool page in <a class="text-emerald-400" href="/index.html">our index</a> flags OpenTelemetry-native status, and our <a class="text-emerald-400" href="/methodology.html">methodology</a> explains how we verified it.</p>
+""",
+ "faq": [
+   ("What does OpenTelemetry-native mean for an LLM observability tool?",
+    "It means the tool ingests or emits OpenTelemetry (OTLP) and follows the OTel GenAI semantic conventions as a first-class path, so you instrument with standard OpenTelemetry rather than a proprietary SDK — and can repoint or dual-export without rewriting code."),
+   ("How many LLM observability tools are OpenTelemetry-native?",
+    "Of the 37 tracing/observability tools tracked on this index, 29 are OpenTelemetry-native and 8 rely on a proprietary SDK or trace format."),
+   ("Is OpenTelemetry-native always the better choice?",
+    "Not always. A proprietary SDK can capture richer, more opinionated data. OTel-native is best understood as a strategic property that minimizes lock-in and keeps you portable, not as a performance ranking."),
+   ("Does instrumentation overhead differ much between tools?",
+    "In our micro-benchmark the per-span overhead of all tested SDKs was negligible versus real LLM latency (under 0.05% of a typical 500ms call), though it varied roughly 7x between the lightest OpenTelemetry path and a richer proprietary one."),
+ ],
+},
 ]
