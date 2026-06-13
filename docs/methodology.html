@@ -3,16 +3,30 @@
 <title>Methodology — how the data and scores are produced | Agent Observability Index</title>
 <meta name="description" content="How the Agent Observability Index produces every factual field and the GitHub-based maturity signal. Fully reproducible, editorially independent.">
 <link rel="canonical" href="https://tools.panshi.io/methodology.html">
-<script src="https://cdn.tailwindcss.com"></script><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "1cd7fde310f94d97a9660eedd270b154"}'></script></head>
+<meta name="theme-color" content="#020617">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Agent Observability Index">
+<meta property="og:title" content="Methodology — how the data and scores are produced | Agent Observability Index">
+<meta property="og:description" content="How the Agent Observability Index produces every factual field and the GitHub-based maturity signal. Fully reproducible, editorially independent.">
+<meta property="og:url" content="https://tools.panshi.io/methodology.html">
+<meta property="og:image" content="https://tools.panshi.io/og.svg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Methodology — how the data and scores are produced | Agent Observability Index">
+<meta name="twitter:description" content="How the Agent Observability Index produces every factual field and the GitHub-based maturity signal. Fully reproducible, editorially independent.">
+<meta name="twitter:image" content="https://tools.panshi.io/og.svg">
+<script src="https://cdn.tailwindcss.com"></script><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "1cd7fde310f94d97a9660eedd270b154"}'></script><script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": "https://tools.panshi.io/index.html"}, {"@type": "ListItem", "position": 2, "name": "Methodology", "item": "https://tools.panshi.io/methodology.html"}]}]}</script></head>
 <body class="bg-slate-950 text-slate-200 antialiased">
 <nav class="border-b border-slate-800"><div class="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
 <a href="index.html" class="font-bold text-white">Agent<span class="text-emerald-400">Obs</span> Index</a>
 <div class="flex gap-5 text-sm">
 <a href="index.html#tools" class="hover:text-white">Tools</a>
 <a href="index.html#compare" class="hover:text-white">Comparisons</a>
+<a href="methodology.html" class="hover:text-white">Methodology</a>
 <a href="advertise.html" class="text-emerald-400 hover:text-emerald-300">Get featured</a>
 </div></div></nav>
 <main class="max-w-3xl mx-auto px-6 py-12">
+<p class="text-sm text-slate-500 mb-2"><a href="index.html" class="hover:text-slate-300">Home</a> / Methodology</p>
 <h1 class="text-3xl font-bold text-white">Methodology</h1>
 <p class="mt-4 text-slate-400">This index is editorially independent. Listings are free and sponsorship never changes facts, scores or rankings. Here is exactly how every data point is produced, so you can audit it.</p>
 <h2 class="text-xl font-semibold text-white mt-8">Factual fields</h2>
@@ -21,16 +35,16 @@
 <p class="mt-2 text-slate-400">For tools with a public repository we read four objective signals directly from the GitHub API: star count, date of the last push, detected license, and open-issue count. These are facts, not opinions.</p>
 <h2 class="text-xl font-semibold text-white mt-8">Maturity signal (0–100)</h2>
 <p class="mt-2 text-slate-400">A reproducible composite of the public GitHub signals above. It measures adoption and upkeep — <em>not</em> product quality, and it is never sold. Tools without a public repo have no score. The formula:</p>
-<pre class="bg-slate-900 border border-slate-800 rounded-lg p-4 text-sm text-slate-300 mt-3 overflow-x-auto">popularity   = min(55, round(13.7 × log10(stars + 1)))     # ~55 at 10k+ stars
-maintenance  = 35 if pushed ≤ 30d, 25 if ≤ 90d, 14 if ≤ 180d,
-                6 if ≤ 365d, else 0
+<pre class="bg-slate-900 border border-slate-800 rounded-lg p-4 text-sm text-slate-300 mt-3 overflow-x-auto">popularity   = min(55, round(13.7 &times; log10(stars + 1)))     # ~55 at 10k+ stars
+maintenance  = 35 if pushed &le; 30d, 25 if &le; 90d, 14 if &le; 180d,
+                6 if &le; 365d, else 0
 openness     = 10 if an OSI license is detected, else 0
 maturity     = min(100, popularity + maintenance + openness)</pre>
-<p class="mt-3 text-slate-400">Bands: Mature ≥ 80, Established ≥ 60, Growing ≥ 40, Early below 40.</p>
+<p class="mt-3 text-slate-400">Bands: Mature &ge; 80, Established &ge; 60, Growing &ge; 40, Early below 40.</p>
 <h2 class="text-xl font-semibold text-white mt-8">What we do not do</h2>
 <p class="mt-2 text-slate-400">We do not inject vendor marketing copy, we do not rank by who pays, and we do not publish performance benchmarks we have not actually run. When hands-on test results are added, they will be labelled as tested and dated.</p>
 </main>
 <footer class="border-t border-slate-800 mt-16"><div class="max-w-5xl mx-auto px-6 py-8 text-sm text-slate-500">
-<p>Agent Observability Index — independent directory, no vendor affiliation. Data manually verified; corrections welcome via <a class="text-emerald-400" href="mailto:hi@panshi.io">email</a>.</p>
-<p class="mt-2">© 2026 Panshi · <a class="hover:text-slate-300" href="index.html">Home</a> · <a class="hover:text-slate-300" href="advertise.html">Advertise</a> · <a class="hover:text-slate-300" href="methodology.html">Methodology</a></p>
+<p>Agent Observability Index — independent directory, no vendor affiliation. Data verified against primary sources; corrections welcome via <a class="text-emerald-400" href="mailto:hi@panshi.io">email</a>.</p>
+<p class="mt-2">© 2026 Panshi · <a class="hover:text-slate-300" href="index.html">Home</a> · <a class="hover:text-slate-300" href="methodology.html">Methodology</a> · <a class="hover:text-slate-300" href="advertise.html">Advertise</a></p>
 </div></footer></body></html>
