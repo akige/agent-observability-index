@@ -135,6 +135,56 @@ def crumbs(items):
         el.append(it)
     return {"@type": "BreadcrumbList", "itemListElement": el}
 
+def faq(qas):
+    """qas: list of (question, answer). Returns (html_section, FAQPage schema dict).
+    GEO: answer-engines quote FAQ Q&A; every answer here is generated from verified data."""
+    items = "".join(
+        f'<div class="mt-4"><p class="font-medium text-slate-200">{esc(q)}</p>'
+        f'<p class="text-slate-400 mt-1">{esc(a)}</p></div>' for q, a in qas)
+    h = ('<section class="mt-12"><h2 class="text-xl font-semibold text-white">'
+         'Frequently asked questions</h2>' + items + '</section>')
+    sch = {"@type": "FAQPage", "mainEntity": [
+        {"@type": "Question", "name": q,
+         "acceptedAnswer": {"@type": "Answer", "text": a}} for q, a in qas]}
+    return h, sch
+
+def tool_qas(t):
+    qas = []
+    if t.get("open_source"):
+        qas.append((f"Is {t['name']} open source?",
+                    "Yes." + (f" Licensed under {t['gh_license']}." if t.get("gh_license") else "")))
+    else:
+        qas.append((f"Is {t['name']} open source?",
+                    f"No — {t['name']} is a proprietary/commercial product."))
+    qas.append((f"Can I self-host {t['name']}?",
+                f"Yes — {t['name']} can run in your own infrastructure." if t.get("self_hostable")
+                else f"No — {t['name']} is cloud-only; there is no self-hosted deployment."))
+    if "otel_native" in t:
+        qas.append((f"Is {t['name']} OpenTelemetry-native?",
+                    f"Yes — {t['name']} speaks OpenTelemetry (OTLP) natively, so there is no proprietary-SDK lock-in."
+                    if t["otel_native"] else
+                    f"No — {t['name']} relies on a proprietary SDK/format rather than native OpenTelemetry."))
+    if t.get("pricing_model"):
+        ans = t["pricing_model"].capitalize() + "." + (f" {t['pricing_note']}" if t.get("pricing_note") else "")
+        qas.append((f"How much does {t['name']} cost?", ans))
+    return qas
+
+def vs_verdict(a, b):
+    diffs = []
+    if bool(a.get("open_source")) != bool(b.get("open_source")):
+        o, c = (a, b) if a.get("open_source") else (b, a)
+        diffs.append(f"{o['name']} is open-source while {c['name']} is proprietary")
+    if bool(a.get("self_hostable")) != bool(b.get("self_hostable")):
+        o, c = (a, b) if a.get("self_hostable") else (b, a)
+        diffs.append(f"{o['name']} can be self-hosted while {c['name']} is cloud-only")
+    if a.get("otel_native") is not None and b.get("otel_native") is not None and a.get("otel_native") != b.get("otel_native"):
+        o, c = (a, b) if a.get("otel_native") else (b, a)
+        diffs.append(f"{o['name']} is OpenTelemetry-native (no lock-in) while {c['name']} uses a proprietary SDK")
+    if not diffs:
+        return (f"{a['name']} and {b['name']} are closely matched on licensing, self-hosting and "
+                "OpenTelemetry support — the decision comes down to pricing and framework integrations below.")
+    return "Key difference: " + "; ".join(diffs) + "."
+
 def badge(txt, color="slate"):
     return f'<span class="text-xs px-2 py-0.5 rounded bg-{color}-800/60 border border-{color}-700 text-{color}-200">{esc(txt)}</span>'
 
@@ -193,18 +243,18 @@ def tool_page(t):
     evp = f'<p class="text-xs text-slate-600 mt-6">Pricing/feature source: <a class="underline" rel="nofollow" href="{esc(ev)}">{esc(ev)}</a></p>' if ev else ""
     mnote = ('<p class="text-xs text-slate-600 mt-2">Maturity signal is computed from public GitHub data only. '
              '<a class="underline" href="../methodology.html">How it is calculated</a>.</p>') if has_gh else ""
-    # related tools (same category, by maturity then stars)
+    faq_html, faq_sch = faq(tool_qas(t))
     body = f"""<main class="max-w-3xl mx-auto px-6 py-12">
 <p class="text-sm text-slate-500 mb-2"><a href="../index.html" class="hover:text-slate-300">Home</a> / <a href="../categories/{t['category']}.html" class="text-emerald-400">{esc(c[0])}</a></p>
 <h1 class="text-3xl font-bold text-white">{esc(t['name'])}</h1>
 <p class="mt-3 text-lg text-slate-400">{esc(t['one_liner'])}</p>
 <div class="mt-6">{links}</div>
-<table class="w-full text-sm mt-8">{tr}</table>{evp}{mnote}</main>"""
+<table class="w-full text-sm mt-8">{tr}</table>{evp}{mnote}{faq_html}</main>"""
     soft = {"@type": "SoftwareApplication", "name": t["name"], "applicationCategory": "DeveloperApplication",
             "operatingSystem": "Web", "description": t["one_liner"], "url": t["url"]}
     if t.get("github"):
         soft["sameAs"] = [t["github"]]
-    jsonld = {"@context": "https://schema.org", "@graph": [soft,
+    jsonld = {"@context": "https://schema.org", "@graph": [soft, faq_sch,
               crumbs([("Home", "index.html"), (c[0], f"categories/{t['category']}.html"), (t["name"], f"tools/{slug(t['name'])}.html")])]}
     return page(f"{t['name']} — pricing, self-hosting & alternatives | {SITE}",
         f"{t['name']}: {t['one_liner'][:140]}", body, f"tools/{slug(t['name'])}.html", root="../",
@@ -247,18 +297,30 @@ def compare_page(a, b):
     pick.append("Both link to primary pricing sources below — verify current tiers before committing; this market shifts monthly.")
     picks = "".join(f"<li>{esc(p)}</li>" for p in pick)
     sa, sb = slug(a["name"]), slug(b["name"])
+    vverdict = vs_verdict(a, b)
+    yn3 = lambda v: "Yes" if v else "No"
+    cqas = [
+        (f"Is {a['name']} or {b['name']} open source?",
+         f"{a['name']}: {yn3(a.get('open_source'))}. {b['name']}: {yn3(b.get('open_source'))}."),
+        (f"Can {a['name']} and {b['name']} be self-hosted?",
+         f"{a['name']}: {yn3(a.get('self_hostable'))}. {b['name']}: {yn3(b.get('self_hostable'))}."),
+        (f"{a['name']} vs {b['name']}: which should I choose?", vverdict),
+    ]
+    cfaq_html, cfaq_sch = faq(cqas)
     body = f"""<main class="max-w-3xl mx-auto px-6 py-12">
 <p class="text-sm text-slate-500 mb-2"><a href="../index.html" class="hover:text-slate-300">Home</a> / Comparisons</p>
 <h1 class="text-3xl font-bold text-white">{esc(a['name'])} vs {esc(b['name'])}</h1>
-<p class="mt-3 text-slate-400">Side-by-side comparison from the {SITE}: licensing, self-hosting, pricing model and integrations — no vendor copy, primary sources linked.</p>
+<div class="mt-4 bg-slate-900 border-l-4 border-emerald-500 rounded-r-lg px-5 py-4"><p class="text-sm font-semibold text-emerald-400">Quick verdict</p><p class="text-slate-300 mt-1">{esc(vverdict)}</p></div>
+<p class="mt-4 text-slate-400">Side-by-side comparison from the {SITE}: licensing, self-hosting, pricing model and integrations — no vendor copy, primary sources linked.</p>
 <table class="w-full text-sm mt-8"><thead><tr class="text-left text-slate-300 border-b border-slate-700">
 <th class="py-2 pr-4"></th><th class="py-2 pr-4"><a class="text-emerald-400" href="../tools/{sa}.html">{esc(a['name'])}</a></th><th class="py-2"><a class="text-emerald-400" href="../tools/{sb}.html">{esc(b['name'])}</a></th></tr></thead>
 <tbody>{rows}</tbody></table>
 <h2 class="text-xl font-semibold text-white mt-10">How to choose</h2>
 <ul class="list-disc list-inside text-slate-400 mt-3 space-y-1">{picks}</ul>
 <p class="text-xs text-slate-600 mt-8">Sources: <a class="underline" rel="nofollow" href="{esc(a.get('evidence_url') or a['url'])}">{esc(a['name'])}</a> · <a class="underline" rel="nofollow" href="{esc(b.get('evidence_url') or b['url'])}">{esc(b['name'])}</a></p>
+{cfaq_html}
 </main>"""
-    jsonld = {"@context": "https://schema.org", "@graph": [
+    jsonld = {"@context": "https://schema.org", "@graph": [cfaq_sch,
         crumbs([("Home", "index.html"), (f"{a['name']} vs {b['name']}", f"compare/{sa}-vs-{sb}.html")])]}
     return page(f"{a['name']} vs {b['name']} (2026) — pricing, self-hosting, integrations | {SITE}",
         f"Neutral {a['name']} vs {b['name']} comparison: licensing, self-hosting, pricing and framework integrations, with primary sources.",
