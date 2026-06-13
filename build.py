@@ -157,12 +157,15 @@ def tool_page(t):
         links += f' <a href="{esc(t["github"])}" rel="nofollow" class="border border-slate-700 hover:border-slate-500 px-5 py-2.5 rounded-lg ml-2">GitHub ↗</a>'
     ev = t.get("evidence_url")
     evp = f'<p class="text-xs text-slate-600 mt-6">Pricing/feature source: <a class="underline" rel="nofollow" href="{esc(ev)}">{esc(ev)}</a></p>' if ev else ""
+    mnote = ('<p class="text-xs text-slate-600 mt-2">Maturity signal is computed from public GitHub data only. '
+             '<a class="underline" href="../methodology.html">How it is calculated</a>.</p>'
+             if (t.get("github") and t.get("gh_stars") is not None) else "")
     body = f"""<main class="max-w-3xl mx-auto px-6 py-12">
 <p class="text-sm text-slate-500 mb-2"><a href="../categories/{t['category']}.html" class="text-emerald-400">{esc(c[0])}</a></p>
 <h1 class="text-3xl font-bold text-white">{esc(t['name'])}</h1>
 <p class="mt-3 text-lg text-slate-400">{esc(t['one_liner'])}</p>
 <div class="mt-6">{links}</div>
-<table class="w-full text-sm mt-8">{tr}</table>{evp}<p class="text-xs text-slate-600 mt-2">Maturity signal is computed from public GitHub data only. <a class="underline" href="../methodology.html">How it is calculated</a>.</p></main>"""
+<table class="w-full text-sm mt-8">{tr}</table>{evp}{mnote}</main>"""
     return page(f"{t['name']} — pricing, self-hosting & alternatives | {SITE}",
         f"{t['name']}: {t['one_liner'][:140]}", body, f"tools/{slug(t['name'])}.html", root="../")
 
