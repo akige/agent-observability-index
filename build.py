@@ -617,6 +617,41 @@ maturity     = min(100, popularity + maintenance + openness)</pre>
     sm = "".join(f"<url><loc>{BASE}/{p}</loc><lastmod>{BUILD_DATE}</lastmod></url>" for p in sorted(set(paths)))
     open(os.path.join(OUT,"sitemap.xml"),"w").write(f'<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{sm}</urlset>')
     open(os.path.join(OUT,"robots.txt"),"w").write(f"User-agent: *\nAllow: /\nSitemap: {BASE}/sitemap.xml\n")
+    # IndexNow key (accelerates Bing/Yandex indexing -> gates ChatGPT citations)
+    INDEXNOW_KEY = "198c801d18754d8698ac988786a9b5ca"
+    open(os.path.join(OUT, INDEXNOW_KEY + ".txt"), "w").write(INDEXNOW_KEY)
+    # llms.txt — map for AI engines / coding agents
+    lt = [f"# {SITE}", "", f"> A neutral, no-vendor-affiliation directory of AI agent observability, evals and guardrails tools — {len(tools)} tools, facts checked against primary sources.", ""]
+    lt.append("## Best-of lists")
+    for sp in BEST_PAGES:
+        lt.append(f"- [{sp['h1']}]({BASE}/best/{sp['slug']}.html)")
+    lt.append("")
+    lt.append("## Comparisons")
+    for an, bn in COMPARE_PAIRS:
+        lt.append(f"- [{an} vs {bn}]({BASE}/compare/{slug(an)}-vs-{slug(bn)}.html)")
+    lt.append("")
+    lt.append("## Tools")
+    for t in tools:
+        lt.append(f"- [{t['name']}]({BASE}/tools/{slug(t['name'])}.html): {t['one_liner']}")
+    lt.append("")
+    lt.append("## Articles")
+    for po in POSTS:
+        lt.append(f"- [{po['title']}]({BASE}/blog/{po['slug']}.html): {po['description']}")
+    lt.append(f"- [Methodology]({BASE}/methodology.html)")
+    open(os.path.join(OUT, "llms.txt"), "w", encoding="utf-8").write("\n".join(lt) + "\n")
+    # machine-readable data export (CC-BY) — crawlable by AI engines / list authors
+    export = []
+    for t in tools:
+        ms = maturity(t)
+        export.append({"name": t["name"], "url": t.get("url"),
+                       "listing": f"{BASE}/tools/{slug(t['name'])}.html",
+                       "category": t.get("category"), "open_source": t.get("open_source"),
+                       "self_hostable": t.get("self_hostable"), "pricing_model": t.get("pricing_model"),
+                       "otel_native": t.get("otel_native"), "gh_stars": t.get("gh_stars"),
+                       "maturity": ms})
+    open(os.path.join(OUT, "data.json"), "w", encoding="utf-8").write(json.dumps(
+        {"name": SITE, "url": BASE, "license": "CC-BY-4.0", "generated": BUILD_DATE,
+         "count": len(tools), "tools": export}, ensure_ascii=False, indent=1))
     print(f"built {len(paths)} pages + sitemap + 404 + favicon + og ({len(tools)} tools)")
 
 if __name__ == "__main__":
